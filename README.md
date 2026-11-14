@@ -4,24 +4,22 @@
 
 DENTOPIA es un juego de combate automático y colección en el que reclutás criaturas inspiradas en alimentos —albóndigas, tomates, pastas, quesos y hongos— y las enviás a luchar en equipos de **3 contra 3**.
 
-Cada criatura es única: tiene estadísticas, rareza y atributos propios. Pero hay una regla que cambia todo: **la muerte es permanente**. Si una criatura cae en combate, no vuelve. Su carta queda para siempre en tu colección como recuerdo de su historia.
+Cada criatura es única. La muerte es permanente: si una criatura cae, no vuelve; su carta permanece en tu colección como recuerdo de su historia.
 
-## Pilares del juego
+## Prototipo 0.1
 
-- **Criaturas únicas:** cada recluta tiene sus propias estadísticas y características.
-- **Combates 3 vs. 3:** enfrentamientos automáticos, directos y fáciles de seguir.
-- **Muerte permanente:** cada decisión implica un riesgo real.
-- **Cartas coleccionables:** conservá el registro de cada criatura que reclutaste, incluso las que perdiste.
-- **Gestión de equipos:** descansos y rotación para que no dependas siempre de las mismas criaturas.
+- Arena 3D procedural renderizada con Three.js.
+- Seis criaturas de prueba con formas y colores propios.
+- Combate automático 3 vs. 3.
+- Daño, puntos de vida, derrotas y registro de batalla.
+- Pausa, reinicio y velocidad 1× / 2×.
+- Interfaz adaptable a escritorio y móvil.
 
-## Estado del proyecto
-
-En desarrollo temprano. El primer prototipo explora la arena 3D, las criaturas procedurales y el ciclo básico de combate.
+> Esta versión es una prueba de concepto visual y de combate. Todavía no implementa reclutamiento, cartas persistentes, progresión ni muerte permanente entre partidas.
 
 ## Tecnología
 
-- TypeScript
-- React
+- React + TypeScript
 - Three.js
 - Vite
 
@@ -32,18 +30,10 @@ npm install
 npm run dev
 ```
 
-Para generar una build:
+Compilar para producción:
 
 ```bash
 npm run build
 ```
 
-## Visión
-
-DENTOPIA combina el encanto absurdo de un universo de comida viviente con la tensión de tomar decisiones sobre criaturas que realmente podés perder.
-
 **Reclutá. Combatí. Recordá.**
-
----
-
-Proyecto independiente en desarrollo.
