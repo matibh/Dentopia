@@ -14,7 +14,7 @@ function loadRoster(): Creature[] {
   return Array.from({ length: 6 }, () => recruitCreature());
 }
 const saveRoster = (roster: Creature[]) => localStorage.setItem(STORAGE_KEY, JSON.stringify(roster));
-function loadMemorial(): MemorialCreature[] { try { return JSON.parse(localStorage.getItem(MEMORIAL_KEY) || "[]") as MemorialCreature[]; } catch { return []; } }
+function loadMemorial(): MemorialCreature[] { try { return (JSON.parse(localStorage.getItem(MEMORIAL_KEY) || "[]") as MemorialCreature[]).map(c => ({ ...c, kills: c.kills ?? 0, ...abilityFor(c.kind) })); } catch { return []; } }
 
 export default function App() {
   const host = useRef<HTMLDivElement>(null);
