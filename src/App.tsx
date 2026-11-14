@@ -17,7 +17,8 @@ export default function App() {
   const host = useRef<HTMLDivElement>(null);
   const arena = useRef<Arena | null>(null);
   const [roster, setRoster] = useState<Creature[]>(loadRoster);
-  const [selected, setSelected] = useState<string[]>(() => loadRoster().slice(0, 3).map(c => c.id));
+  const [selected, setSelected] = useState<string[]>([]);
+  const initializedSelection = useRef(false);
   const [battleUnits, setBattleUnits] = useState<Creature[]>([]);
   const [running, setRunning] = useState(false);
   const [speed, setSpeed] = useState(1);
@@ -28,6 +29,7 @@ export default function App() {
   const logId = useRef(1);
 
   useEffect(() => { saveRoster(roster); }, [roster]);
+  useEffect(() => { if (!initializedSelection.current && roster.length) { setSelected(roster.slice(0, 3).map(c => c.id)); initializedSelection.current = true; } }, [roster]);
   useEffect(() => {
     if (!host.current) return;
     const instance = new Arena(host.current);
