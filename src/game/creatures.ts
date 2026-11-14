@@ -1,20 +1,46 @@
 export type CreatureKind = "meatball" | "tomato" | "pasta" | "cheese" | "mushroom" | "ravioli";
+export type Rarity = "Común" | "Raro" | "Épico";
 export type Creature = {
   id: string; name: string; kind: CreatureKind; hp: number; maxHp: number;
   attack: number; defense: number; color: string; side: "blue" | "red"; x: number;
+  rarity: Rarity; trait: string; wins: number;
 };
-const templates: Omit<Creature, "id" | "side" | "x">[] = [
-  { name: "Albóndiga Real", kind: "meatball", hp: 92, maxHp: 92, attack: 13, defense: 5, color: "#a85a3b" },
-  { name: "Tomatín", kind: "tomato", hp: 68, maxHp: 68, attack: 10, defense: 2, color: "#ef594f" },
-  { name: "Fettuccino", kind: "pasta", hp: 74, maxHp: 74, attack: 12, defense: 1, color: "#e9c46a" },
-  { name: "Quesardo", kind: "cheese", hp: 82, maxHp: 82, attack: 9, defense: 4, color: "#f5c542" },
-  { name: "Champi", kind: "mushroom", hp: 76, maxHp: 76, attack: 11, defense: 3, color: "#c89a79" },
-  { name: "Raviolón", kind: "ravioli", hp: 88, maxHp: 88, attack: 10, defense: 4, color: "#e9b86f" }
+type Template = { name: string; kind: CreatureKind; hp: number; attack: number; defense: number; color: string; trait: string };
+const templates: Template[] = [
+  { name: "Albóndiga", kind: "meatball", hp: 92, attack: 13, defense: 5, color: "#a85a3b", trait: "Corazón de hierro" },
+  { name: "Tomatín", kind: "tomato", hp: 68, attack: 10, defense: 2, color: "#ef594f", trait: "Sangre caliente" },
+  { name: "Fettuccino", kind: "pasta", hp: 74, attack: 12, defense: 1, color: "#e9c46a", trait: "Golpe elástico" },
+  { name: "Quesardo", kind: "cheese", hp: 82, attack: 9, defense: 4, color: "#f5c542", trait: "Corteza dura" },
+  { name: "Champi", kind: "mushroom", hp: 76, attack: 11, defense: 3, color: "#c89a79", trait: "Esporas valientes" },
+  { name: "Raviolón", kind: "ravioli", hp: 88, attack: 10, defense: 4, color: "#e9b86f", trait: "Relleno sorpresa" }
 ];
+const names: Record<CreatureKind, string[]> = {
+  meatball: ["Albóndiga", "Don Bolo", "Bollito", "Bruno"],
+  tomato: ["Tomatín", "Rojito", "Pomodoro", "Toma"],
+  pasta: ["Fettuccino", "Tallarín", "Spaghetto", "Linguini"],
+  cheese: ["Quesardo", "Provolito", "Cheddarín", "Gouda"],
+  mushroom: ["Champi", "Portobello", "Setín", "Míster Hongo"],
+  ravioli: ["Raviolón", "Raviolito", "Cuadradín", "Ravi"]
+};
+const roll = (n: number) => Math.floor(Math.random() * n);
+export function recruitCreature(): Creature {
+  const t = templates[roll(templates.length)];
+  const rarity: Rarity = Math.random() > .94 ? "Épico" : Math.random() > .76 ? "Raro" : "Común";
+  const bonus = rarity === "Épico" ? 1.25 : rarity === "Raro" ? 1.12 : 1;
+  const hp = Math.round((t.hp + roll(17) - 8) * bonus);
+  return {
+    ...t, id: crypto.randomUUID(), name: names[t.kind][roll(names[t.kind].length)],
+    hp, maxHp: hp, attack: Math.max(1, Math.round((t.attack + roll(5) - 2) * bonus)),
+    defense: Math.max(0, Math.round((t.defense + roll(3) - 1) * bonus)),
+    side: "blue", x: -2.4, rarity, wins: 0
+  };
+}
 export function makeTeam(side: "blue" | "red"): Creature[] {
-  const picks = side === "blue" ? [0, 2, 3] : [1, 4, 5];
-  return picks.map((pick, i) => ({ ...templates[pick], id: side + "-" + i, side, x: side === "blue" ? -2.4 : 2.4 }));
+  return Array.from({ length: 3 }, (_, i) => {
+    const c = recruitCreature();
+    return { ...c, side, x: side === "blue" ? -2.4 : 2.4, id: side + "-" + i };
+  });
 }
 export function rollDamage(attacker: Creature, defender: Creature): number {
-  return Math.max(1, attacker.attack + Math.floor(Math.random() * 5) - defender.defense);
+  return Math.max(1, attacker.attack + roll(5) - defender.defense);
 }
