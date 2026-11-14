@@ -195,6 +195,15 @@ export class Arena {
       this.makeEyes(group,0.82,0.18,0.46);
     }
 
+    // Rounded little arms make each food fighter read as a complete character.
+    const limbMat = this.material(c.kind === "mushroom" ? "#f1dfc4" : c.color, 0.52);
+    for (const side of [-1, 1]) {
+      const arm = this.addMesh(group, new THREE.CapsuleGeometry(0.105, 0.25, 5, 10), limbMat, side * 0.53, 0.55, 0.02);
+      arm.rotation.z = side * -0.48;
+      const hand = this.addMesh(group, new THREE.SphereGeometry(0.115, 16, 12), limbMat, side * 0.66, 0.39, 0.09);
+      hand.scale.set(1.05, 0.9, 0.9);
+    }
+
     // Sculpted feet, ankle cuffs and a small chest insignia add a finished toy-figure read.
     const feetMat = this.material("#45313a", 0.62);
     const cuffMat = this.material(c.side === "blue" ? "#8ecbff" : "#ffb0a0", 0.34, 0.12);
@@ -219,7 +228,14 @@ export class Arena {
     group.rotation.y = c.side === "blue" ? 0 : Math.PI;
     group.scale.setScalar(0.9);
     group.userData.baseY = 0;
+    group.userData.baseX = c.x;
+    group.userData.baseZ = c.side === "blue" ? 2.35 : -2.35;
+    group.userData.baseRotationY = group.rotation.y;
     group.userData.phase = Math.random() * Math.PI * 2;
+    group.userData.attackStarted = -100;
+    group.userData.hitStarted = -100;
+    group.userData.hitFlash = this.addMesh(group, new THREE.SphereGeometry(0.78, 20, 16), new THREE.MeshBasicMaterial({ color: "#fff2b0", transparent: true, opacity: 0, wireframe: true }), 0, 0.72, 0);
+    group.userData.hitFlash.visible = false;
     return group;
   }
 
@@ -245,11 +261,23 @@ export class Arena {
   updateHealth(creatures: Creature[]) {
     creatures.forEach(c => {
       const group = this.fighters.get(c.id);
-      if (group) {
-        group.visible = c.hp > 0;
-        group.scale.setScalar(c.hp > 0 ? 0.9 : 0.01);
-      }
+      if (group) group.visible = c.hp > 0;
     });
+  }
+
+  playAttack(attackerId: string, targetId: string) {
+    const now = this.clock.getElapsedTime();
+    const attacker = this.fighters.get(attackerId);
+    const target = this.fighters.get(targetId);
+    if (!attacker || !target || !attacker.visible || !target.visible) return;
+    attacker.userData.attackStarted = now;
+    target.userData.hitStarted = now;
+    const flash = target.userData.hitFlash as THREE.Mesh | undefined;
+    if (flash) {
+      flash.visible = true;
+      const mat = flash.material as THREE.MeshBasicMaterial;
+      mat.opacity = 0.85;
+    }
   }
 
   private resize() {
@@ -264,8 +292,25 @@ export class Arena {
     const time = this.clock.getElapsedTime();
     this.fighters.forEach(group => {
       const phase = group.userData.phase as number;
-      group.position.y = Math.sin(time * 2.1 + phase) * 0.055;
-      group.rotation.y = Math.sin(time * 0.7 + phase) * 0.09;
+      const baseX = group.userData.baseX as number;
+      const baseZ = group.userData.baseZ as number;
+      const attackAge = time - (group.userData.attackStarted as number);
+      const hitAge = time - (group.userData.hitStarted as number);
+      const attackT = Math.max(0, Math.min(1, attackAge / 0.38));
+      const attackLunge = attackAge >= 0 && attackAge < 0.38 ? Math.sin(attackT * Math.PI) * 0.82 : 0;
+      const facing = group.userData.baseRotationY as number;
+      const forward = facing === 0 ? -1 : 1;
+      group.position.x = baseX;
+      group.position.z = baseZ + forward * attackLunge;
+      group.position.y = Math.sin(time * 2.1 + phase) * 0.045;
+      group.rotation.y = facing + Math.sin(time * 0.7 + phase) * 0.045;
+      group.rotation.x = hitAge >= 0 && hitAge < 0.22 ? Math.sin((hitAge / 0.22) * Math.PI * 3) * 0.16 : 0;
+      const flash = group.userData.hitFlash as THREE.Mesh | undefined;
+      if (flash) {
+        const visible = hitAge >= 0 && hitAge < 0.2;
+        flash.visible = visible;
+        if (visible) (flash.material as THREE.MeshBasicMaterial).opacity = (1 - hitAge / 0.2) * 0.85;
+      }
     });
     this.renderer.render(this.scene, this.camera);
   };

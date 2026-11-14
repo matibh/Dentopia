@@ -77,6 +77,7 @@ export default function App() {
       const opponents = battleUnits.filter(c => c.side !== attacker.side && c.hp > 0);
       const target = opponents[Math.floor(Math.random() * opponents.length)];
       const damage = rollDamage(attacker, target);
+      arena.current?.playAttack(attacker.id, target.id);
       const next = battleUnits.map(c => c.id === target.id ? { ...c, hp: Math.max(0, c.hp - damage), ...(target.hp - damage <= 0 ? { killerName: attacker.name } : {}) } : c.id === attacker.id && target.hp - damage <= 0 ? { ...c, kills: (c.kills ?? 0) + 1 } : c);
       setBattleUnits(next); setRound(r => r + 1);
       const defeated = target.hp - damage <= 0;
