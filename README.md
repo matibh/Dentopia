@@ -40,3 +40,8 @@ npm run build
 ```
 
 **Reclutá. Combatí. Recordá.**
+
+
+## Creature abilities
+
+Each food species has a unique passive combat ability: Meatball reduces incoming damage, Tomato punishes weakened rivals, Pasta can trigger a stronger lash, Cheese has a tougher crust, Mushroom can trigger bonus spore damage, and Ravioli can unleash a high-variance surprise strike. Permanent deaths are recorded in the local Archivo de Leyendas, including the actual final opponent when available.
