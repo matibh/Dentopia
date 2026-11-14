@@ -123,7 +123,6 @@ export class Arena {
     const group = new THREE.Group();
     const bodyMat = this.material(c.color, 0.38);
     const cream = this.material("#f5e5c8", 0.7);
-    const dark = this.material("#49313a", 0.7);
 
     // A soft, edible silhouette unique to each food species.
     if (c.kind === "meatball") {
