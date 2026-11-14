@@ -3,7 +3,7 @@ export type Rarity = "Común" | "Raro" | "Épico";
 export type Creature = {
   id: string; name: string; kind: CreatureKind; hp: number; maxHp: number;
   attack: number; defense: number; color: string; side: "blue" | "red"; x: number;
-  rarity: Rarity; trait: string; wins: number; kills: number;
+  rarity: Rarity; trait: string; wins: number; kills: number; abilityName: string; abilityDescription: string; killerName?: string;
 };
 type Template = { name: string; kind: CreatureKind; hp: number; attack: number; defense: number; color: string; trait: string };
 const templates: Template[] = [
@@ -32,7 +32,8 @@ export function recruitCreature(): Creature {
     ...t, id: crypto.randomUUID(), name: names[t.kind][roll(names[t.kind].length)],
     hp, maxHp: hp, attack: Math.max(1, Math.round((t.attack + roll(5) - 2) * bonus)),
     defense: Math.max(0, Math.round((t.defense + roll(3) - 1) * bonus)),
-    side: "blue", x: -2.4, rarity, wins: 0, kills: 0
+    side: "blue", x: -2.4, rarity, wins: 0, kills: 0,
+    ...abilityFor(t.kind)
   };
 }
 export function makeTeam(side: "blue" | "red"): Creature[] {
@@ -41,6 +42,24 @@ export function makeTeam(side: "blue" | "red"): Creature[] {
     return { ...c, side, x: side === "blue" ? -2.4 : 2.4, id: side + "-" + i };
   });
 }
+export function abilityFor(kind: CreatureKind): { abilityName: string; abilityDescription: string } {
+  const abilities: Record<CreatureKind, { abilityName: string; abilityDescription: string }> = {
+    meatball: { abilityName: "Caparazón", abilityDescription: "Recibe 3 puntos menos de daño." },
+    tomato: { abilityName: "Sangre caliente", abilityDescription: "Inflige 6 de daño extra a rivales heridos." },
+    pasta: { abilityName: "Latigazo", abilityDescription: "Tiene 1 de cada 4 chances de sumar 5 de daño." },
+    cheese: { abilityName: "Corteza dura", abilityDescription: "Reduce en 2 el daño recibido." },
+    mushroom: { abilityName: "Esporas", abilityDescription: "Tiene 1 de cada 5 chances de sumar 7 de daño." },
+    ravioli: { abilityName: "Relleno sorpresa", abilityDescription: "Tiene 1 de cada 5 chances de sumar 9 de daño." }
+  };
+  return abilities[kind];
+}
 export function rollDamage(attacker: Creature, defender: Creature): number {
-  return Math.max(1, attacker.attack + roll(5) - defender.defense);
+  let damage = attacker.attack + roll(5) - defender.defense;
+  if (defender.kind === "meatball") damage -= 3;
+  if (defender.kind === "cheese") damage -= 2;
+  if (attacker.kind === "tomato" && defender.hp / defender.maxHp <= .4) damage += 6;
+  if (attacker.kind === "pasta" && roll(4) === 0) damage += 5;
+  if (attacker.kind === "mushroom" && roll(5) === 0) damage += 7;
+  if (attacker.kind === "ravioli" && roll(5) === 0) damage += 9;
+  return Math.max(1, damage);
 }
