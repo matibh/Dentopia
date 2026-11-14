@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Arena } from "./game/Arena";
 import { recruitCreature, rollDamage, type Creature } from "./game/creatures";
 
@@ -43,7 +43,7 @@ export default function App() {
   const recruit = () => {
     const fresh = recruitCreature();
     setRoster(old => [...old, fresh]);
-    setLogs(old => [{ id: logId.current++, text: fresh.name + " se unió a Dentopia.", tone: "neutral" }, ...old].slice(0, 8));
+    setLogs(old => [{ id: logId.current++, text: fresh.name + " se unió a Dentopia.", tone: "neutral" as const }, ...old].slice(0, 8));
   };
   const toggleSelected = (id: string) => {
     if (running) return;
