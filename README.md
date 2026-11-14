@@ -18,7 +18,7 @@ DENTOPIA es un juego de colección y combate automático. Reclutá criaturas ins
 - Pausa, velocidad 1× / 2× y reinicio del enfrentamiento.
 - Interfaz adaptable a escritorio y móvil.
 
-> Esta versión guarda la colección en el navegador actual. La muerte permanente, el archivo histórico de cartas, la progresión y la sincronización entre dispositivos todavía están pendientes.
+> La colección y el Archivo de Leyendas se guardan en el navegador actual. La sincronización entre dispositivos todavía está pendiente.
 
 ## Tecnología
 
@@ -45,3 +45,11 @@ npm run build
 ## Creature abilities
 
 Each food species has a unique passive combat ability: Meatball reduces incoming damage, Tomato punishes weakened rivals, Pasta can trigger a stronger lash, Cheese has a tougher crust, Mushroom can trigger bonus spore damage, and Ravioli can unleash a high-variance surprise strike. Permanent deaths are recorded in the local Archivo de Leyendas, including the actual final opponent when available.
+
+## Progresión individual
+
+- Las criaturas supervivientes ganan experiencia al terminar cada combate.
+- La victoria y las bajas conseguidas otorgan experiencia adicional.
+- Cada nivel aumenta la vida máxima y el ataque; cada tercer nivel también aumenta la defensa.
+- El coste para subir de nivel aumenta progresivamente.
+- Las bajas, los combates y el nivel alcanzado se conservan en el Archivo de Leyendas.

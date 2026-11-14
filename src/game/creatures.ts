@@ -3,7 +3,7 @@ export type Rarity = "Común" | "Raro" | "Épico";
 export type Creature = {
   id: string; name: string; kind: CreatureKind; hp: number; maxHp: number;
   attack: number; defense: number; color: string; side: "blue" | "red"; x: number;
-  rarity: Rarity; trait: string; wins: number; kills: number; abilityName: string; abilityDescription: string; killerName?: string;
+  rarity: Rarity; trait: string; wins: number; kills: number; level: number; xp: number; battles: number; abilityName: string; abilityDescription: string; killerName?: string;
 };
 type Template = { name: string; kind: CreatureKind; hp: number; attack: number; defense: number; color: string; trait: string };
 const templates: Template[] = [
@@ -32,7 +32,7 @@ export function recruitCreature(): Creature {
     ...t, id: crypto.randomUUID(), name: names[t.kind][roll(names[t.kind].length)],
     hp, maxHp: hp, attack: Math.max(1, Math.round((t.attack + roll(5) - 2) * bonus)),
     defense: Math.max(0, Math.round((t.defense + roll(3) - 1) * bonus)),
-    side: "blue", x: -2.4, rarity, wins: 0, kills: 0,
+    side: "blue", x: -2.4, rarity, wins: 0, kills: 0, level: 1, xp: 0, battles: 0,
     ...abilityFor(t.kind)
   };
 }
@@ -62,4 +62,19 @@ export function rollDamage(attacker: Creature, defender: Creature): number {
   if (attacker.kind === "mushroom" && roll(5) === 0) damage += 7;
   if (attacker.kind === "ravioli" && roll(5) === 0) damage += 9;
   return Math.max(1, damage);
+}
+
+export function gainExperience(creature: Creature, amount: number): Creature {
+  const next = { ...creature, xp: creature.xp + amount };
+  let threshold = 100 + (next.level - 1) * 50;
+  while (next.xp >= threshold) {
+    next.xp -= threshold;
+    next.level += 1;
+    next.maxHp += 5;
+    next.hp = Math.min(next.maxHp, next.hp + 5);
+    next.attack += 1;
+    if (next.level % 3 === 0) next.defense += 1;
+    threshold = 100 + (next.level - 1) * 50;
+  }
+  return next;
 }

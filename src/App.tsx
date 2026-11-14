@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Arena } from "./game/Arena";
-import { abilityFor, recruitCreature, rollDamage, type Creature } from "./game/creatures";
+import { abilityFor, gainExperience, recruitCreature, rollDamage, type Creature } from "./game/creatures";
 
 type LogLine = { id: number; text: string; tone: "blue" | "red" | "neutral" };
 const STORAGE_KEY = "dentopia-roster-v1";
@@ -9,12 +9,12 @@ type MemorialCreature = Creature & { causeOfDeath: string; dateOfDeath: string }
 function loadRoster(): Creature[] {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) return (JSON.parse(saved) as Creature[]).map(c => ({ ...c, kills: c.kills ?? 0, ...abilityFor(c.kind) }));
+    if (saved) return (JSON.parse(saved) as Creature[]).map(c => ({ ...c, kills: c.kills ?? 0, level: c.level ?? 1, xp: c.xp ?? 0, battles: c.battles ?? c.wins ?? 0, ...abilityFor(c.kind) }));
   } catch { /* start with a fresh roster */ }
   return Array.from({ length: 6 }, () => recruitCreature());
 }
 const saveRoster = (roster: Creature[]) => localStorage.setItem(STORAGE_KEY, JSON.stringify(roster));
-function loadMemorial(): MemorialCreature[] { try { return (JSON.parse(localStorage.getItem(MEMORIAL_KEY) || "[]") as MemorialCreature[]).map(c => ({ ...c, kills: c.kills ?? 0, ...abilityFor(c.kind) })); } catch { return []; } }
+function loadMemorial(): MemorialCreature[] { try { return (JSON.parse(localStorage.getItem(MEMORIAL_KEY) || "[]") as MemorialCreature[]).map(c => ({ ...c, kills: c.kills ?? 0, level: c.level ?? 1, xp: c.xp ?? 0, battles: c.battles ?? c.wins ?? 0, ...abilityFor(c.kind) })); } catch { return []; } }
 
 export default function App() {
   const host = useRef<HTMLDivElement>(null);
@@ -90,11 +90,18 @@ export default function App() {
         const fallenIds = new Set(fallen.map(c => c.id));
         const survivors = new Set(next.filter(c => c.side === "blue" && c.hp > 0).map(c => c.id));
         if (fallen.length) {
-          setMemorial(old => [...old, ...fallen.map(c => ({ ...c, causeOfDeath: c.killerName || "La Arena", dateOfDeath: new Date().toISOString() }))]);
+          setMemorial(old => [...old, ...fallen.map(c => ({ ...c, battles: (roster.find(r => r.id === c.id)?.battles ?? 0) + 1, causeOfDeath: c.killerName || "La Arena", dateOfDeath: new Date().toISOString() }))]);
           setSelected(old => old.filter(id => !fallenIds.has(id)));
           setLogs(old => [{ id: logId.current++, text: fallen.map(c => c.name).join(", ") + " pasó al Archivo de Leyendas.", tone: "neutral" as const }, ...old].slice(0, 8));
         }
-        setRoster(old => old.filter(c => !fallenIds.has(c.id)).map(c => survivors.has(c.id) && won ? { ...c, wins: c.wins + 1 } : c));
+        setRoster(old => old.filter(c => !fallenIds.has(c.id)).map(c => {
+          if (!survivors.has(c.id)) return c;
+          const fighter = next.find(unit => unit.id === c.id);
+          if (!fighter) return c;
+          const gainedKills = Math.max(0, fighter.kills - (c.kills ?? 0));
+          const updated = { ...fighter, battles: (c.battles ?? 0) + 1, wins: c.wins + (won ? 1 : 0) };
+          return gainExperience(updated, 50 + (won ? 25 : 0) + gainedKills * 15);
+        }));
       }
     }, 1050 / speed);
     return () => window.clearTimeout(timer);
@@ -134,13 +141,13 @@ function CreatureCard({ c, selected, onClick }: { c: Creature; selected: boolean
   return <button className={"roster-card " + (selected ? "chosen" : "") + " rarity-" + c.rarity.toLowerCase()} onClick={onClick}>
     <div className="card-top"><span>{c.rarity.toUpperCase()}</span><span>{selected ? "✓ EN ESCUADRÓN" : "＋ SELECCIONAR"}</span></div>
     <div className="card-creature" style={{ color: c.color }}>{symbol}</div><h3>{c.name}</h3><p>{c.trait}</p>
-    <div className="card-stats"><span><b>{c.maxHp}</b> HP</span><span><b>{c.attack}</b> ATQ</span><span><b>{c.defense}</b> DEF</span></div>
-    <div className="card-footer"><span>VICTORIAS · BAJAS</span><strong>{c.wins} · {c.kills ?? 0}</strong></div>
+    <div className="level-line"><strong>NIVEL {c.level ?? 1}</strong><span>{c.xp ?? 0}/{100 + ((c.level ?? 1) - 1) * 50} XP</span></div><div className="xp-track"><i style={{ width: `${((c.xp ?? 0) / (100 + ((c.level ?? 1) - 1) * 50)) * 100}%` }} /></div><div className="card-stats"><span><b>{c.maxHp}</b> HP</span><span><b>{c.attack}</b> ATQ</span><span><b>{c.defense}</b> DEF</span></div>
+    <div className="card-footer"><span>VICTORIAS · BAJAS · COMBATES</span><strong>{c.wins} · {c.kills ?? 0} · {c.battles ?? 0}</strong></div>
   </button>;
 }
 function MemorialCard({ c }: { c: MemorialCreature }) {
   const symbol = c.kind === "meatball" ? "●" : c.kind === "tomato" ? "🍅" : c.kind === "pasta" ? "〰" : c.kind === "cheese" ? "◆" : c.kind === "mushroom" ? "🍄" : "▧";
-  return <article className="roster-card memorial-card"><div className="card-top"><span>✦ LEYENDA CAÍDA</span><span>{c.rarity.toUpperCase()}</span></div><div className="card-creature" style={{ color: c.color }}>{symbol}</div><h3>{c.name}</h3><p>{c.trait}</p><div className="card-stats"><span><b>{c.maxHp}</b> HP</span><span><b>{c.attack}</b> ATQ</span><span><b>{c.defense}</b> DEF</span></div><div className="ability-chip"><strong>✦ {c.abilityName}</strong><span>{c.abilityDescription}</span></div><div className="memorial-details"><span>VICTORIAS <b>{c.wins}</b></span><span>BAJAS <b>{c.kills ?? 0}</b></span><span>DERROTADO POR <b>{c.causeOfDeath}</b></span><span>FECHA <b>{new Date(c.dateOfDeath).toLocaleDateString("es-AR")}</b></span></div></article>;
+  return <article className="roster-card memorial-card"><div className="card-top"><span>✦ LEYENDA CAÍDA</span><span>{c.rarity.toUpperCase()}</span></div><div className="card-creature" style={{ color: c.color }}>{symbol}</div><h3>{c.name}</h3><p>{c.trait}</p><div className="card-stats"><span><b>{c.maxHp}</b> HP</span><span><b>{c.attack}</b> ATQ</span><span><b>{c.defense}</b> DEF</span></div><div className="ability-chip"><strong>✦ {c.abilityName}</strong><span>{c.abilityDescription}</span></div><div className="memorial-details"><span>NIVEL ALCANZADO <b>{c.level ?? 1}</b></span><span>COMBATES <b>{c.battles ?? 0}</b></span><span>VICTORIAS <b>{c.wins}</b></span><span>BAJAS <b>{c.kills ?? 0}</b></span><span>DERROTADO POR <b>{c.causeOfDeath}</b></span><span>FECHA <b>{new Date(c.dateOfDeath).toLocaleDateString("es-AR")}</b></span></div></article>;
 }
 function CreatureRow({ c }: { c: Creature }) {
   const pct = Math.max(0, c.hp / c.maxHp * 100);
