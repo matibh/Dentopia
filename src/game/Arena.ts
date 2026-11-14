@@ -48,8 +48,12 @@ export class Arena {
     this.animate();
   }
 
-  private material(color: string, roughness = 0.62, metalness = 0) {
-    return new THREE.MeshStandardMaterial({ color, roughness, metalness });
+  private material(color: string, roughness = 0.48, metalness = 0) {
+    return new THREE.MeshPhysicalMaterial({
+      color, roughness, metalness,
+      clearcoat: 0.28, clearcoatRoughness: 0.32,
+      sheen: 0.18, sheenRoughness: 0.7
+    });
   }
 
   private addMesh(parent: THREE.Object3D, geometry: THREE.BufferGeometry, material: THREE.Material, x=0, y=0, z=0) {
@@ -103,20 +107,24 @@ export class Arena {
   }
 
   private makeEyes(group: THREE.Group, y: number, spread = 0.19, z = 0.47) {
-    const white = this.material("#fff8e9", 0.25);
-    const pupil = this.material("#211c25", 0.2);
+    const white = this.material("#fffaf0", 0.2);
+    const pupil = this.material("#211c25", 0.16);
     const shine = new THREE.MeshBasicMaterial({ color: "#ffffff" });
+    const brow = this.material("#57352e", 0.72);
     for (const x of [-spread, spread]) {
-      this.addMesh(group, new THREE.SphereGeometry(0.095, 16, 12), white, x, y, z);
-      this.addMesh(group, new THREE.SphereGeometry(0.052, 12, 10), pupil, x + 0.012, y - 0.005, z + 0.075);
-      this.addMesh(group, new THREE.SphereGeometry(0.018, 8, 8), shine, x - 0.005, y + 0.025, z + 0.12);
+      this.addMesh(group, new THREE.SphereGeometry(0.112, 24, 18), white, x, y, z);
+      this.addMesh(group, new THREE.SphereGeometry(0.059, 20, 16), pupil, x + 0.018, y - 0.006, z + 0.087);
+      this.addMesh(group, new THREE.SphereGeometry(0.022, 12, 10), shine, x - 0.006, y + 0.03, z + 0.137);
+      const eyebrow = this.addMesh(group, new THREE.CapsuleGeometry(0.025, 0.13, 4, 8), brow, x, y + 0.145, z - 0.005);
+      eyebrow.rotation.z = x < 0 ? -0.16 : 0.16;
     }
-    const cheek = new THREE.MeshStandardMaterial({ color: "#ef9b8c", roughness: 0.8, transparent: true, opacity: 0.7 });
-    for (const x of [-0.34, 0.34]) this.addMesh(group, new THREE.SphereGeometry(0.075, 12, 8), cheek, x, y - 0.14, z - 0.005);
-    const smile = new THREE.Mesh(new THREE.TorusGeometry(0.105, 0.018, 8, 18, Math.PI), this.material("#5a3031", 0.8));
-    smile.position.set(0, y - 0.2, z + 0.035);
-    smile.rotation.z = Math.PI;
-    group.add(smile);
+    const cheek = new THREE.MeshStandardMaterial({ color: "#ef9b8c", roughness: 0.72, transparent: true, opacity: 0.58 });
+    for (const x of [-0.36, 0.36]) this.addMesh(group, new THREE.SphereGeometry(0.068, 16, 12), cheek, x, y - 0.15, z + 0.015);
+    const mouth = new THREE.Mesh(new THREE.TorusGeometry(0.105, 0.022, 10, 24, Math.PI), this.material("#623b37", 0.72));
+    mouth.position.set(0, y - 0.205, z + 0.055);
+    mouth.rotation.z = Math.PI;
+    group.add(mouth);
+    this.addMesh(group, new THREE.SphereGeometry(0.035, 12, 10), this.material("#f5a39a", 0.5), 0, y - 0.24, z + 0.07);
   }
 
   private makeFighter(c: Creature): THREE.Group {
@@ -187,12 +195,17 @@ export class Arena {
       this.makeEyes(group,0.82,0.18,0.46);
     }
 
-    // Tiny feet, giving the fighters a readable toy-like stance.
-    const feetMat = this.material("#45313a", 0.7);
-    for (const x of [-0.25, 0.25]) {
-      const foot = this.addMesh(group, new THREE.SphereGeometry(0.16, 14, 10), feetMat, x, 0.12, 0.12);
-      foot.scale.set(1.15, 0.65, 1.2);
+    // Sculpted feet, ankle cuffs and a small chest insignia add a finished toy-figure read.
+    const feetMat = this.material("#45313a", 0.62);
+    const cuffMat = this.material(c.side === "blue" ? "#8ecbff" : "#ffb0a0", 0.34, 0.12);
+    for (const x of [-0.27, 0.27]) {
+      const foot = this.addMesh(group, new THREE.SphereGeometry(0.17, 20, 16), feetMat, x, 0.13, 0.13);
+      foot.scale.set(1.18, 0.68, 1.22);
+      this.addMesh(group, new THREE.TorusGeometry(0.105, 0.025, 8, 20), cuffMat, x, 0.22, 0.13);
     }
+    const emblemMat = new THREE.MeshStandardMaterial({ color: c.side === "blue" ? "#9bd4ff" : "#ffb09a", metalness: 0.38, roughness: 0.3 });
+    const emblem = this.addMesh(group, new THREE.SphereGeometry(0.105, 20, 16), emblemMat, 0, 0.48, 0.49);
+    emblem.scale.set(1, 1, 0.42);
 
     // Team-colored glow ring under each fighter.
     const teamColor = c.side === "blue" ? "#6eb5ff" : "#ff8a78";
@@ -202,6 +215,8 @@ export class Arena {
     shadow.rotation.x = -Math.PI / 2; shadow.position.y = 0.018; group.add(shadow);
 
     group.position.set(c.x, 0, c.side === "blue" ? 2.35 : -2.35);
+    // Faces always point toward the opposing team and remain readable from the camera.
+    group.rotation.y = c.side === "blue" ? 0 : Math.PI;
     group.scale.setScalar(0.9);
     group.userData.baseY = 0;
     group.userData.phase = Math.random() * Math.PI * 2;
