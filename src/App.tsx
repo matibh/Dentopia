@@ -31,11 +31,12 @@ export default function App() {
   useEffect(() => { saveRoster(roster); }, [roster]);
   useEffect(() => { if (!initializedSelection.current && roster.length) { setSelected(roster.slice(0, 3).map(c => c.id)); initializedSelection.current = true; } }, [roster]);
   useEffect(() => {
-    if (!host.current) return;
+    if (tab !== "arena" || !host.current) return;
     const instance = new Arena(host.current);
     arena.current = instance;
+    if (battleUnits.length) instance.setCreatures(battleUnits);
     return () => { instance.dispose(); arena.current = null; };
-  }, []);
+  }, [tab]);
   useEffect(() => { if (battleUnits.length) arena.current?.setCreatures(battleUnits); }, [battleUnits.length > 0]);
   useEffect(() => { if (battleUnits.length) arena.current?.updateHealth(battleUnits); }, [battleUnits]);
 
