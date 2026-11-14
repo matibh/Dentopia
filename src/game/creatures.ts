@@ -3,7 +3,7 @@ export type Rarity = "Común" | "Raro" | "Épico";
 export type Creature = {
   id: string; name: string; kind: CreatureKind; hp: number; maxHp: number;
   attack: number; defense: number; color: string; side: "blue" | "red"; x: number;
-  rarity: Rarity; trait: string; wins: number;
+  rarity: Rarity; trait: string; wins: number; kills: number;
 };
 type Template = { name: string; kind: CreatureKind; hp: number; attack: number; defense: number; color: string; trait: string };
 const templates: Template[] = [
@@ -32,7 +32,7 @@ export function recruitCreature(): Creature {
     ...t, id: crypto.randomUUID(), name: names[t.kind][roll(names[t.kind].length)],
     hp, maxHp: hp, attack: Math.max(1, Math.round((t.attack + roll(5) - 2) * bonus)),
     defense: Math.max(0, Math.round((t.defense + roll(3) - 1) * bonus)),
-    side: "blue", x: -2.4, rarity, wins: 0
+    side: "blue", x: -2.4, rarity, wins: 0, kills: 0
   };
 }
 export function makeTeam(side: "blue" | "red"): Creature[] {
