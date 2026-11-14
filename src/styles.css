@@ -8,3 +8,115 @@
 .ability-chip{display:flex;flex-direction:column;gap:4px;padding:9px 0 10px;border-bottom:1px solid #ffffff12}.ability-chip strong{font:500 9px 'DM Mono';letter-spacing:.5px;color:#e5ae5d}.ability-chip span{font-size:9px;line-height:1.45;color:#9294a3}.memorial-card .ability-chip strong{color:#d9a39a}
 
 .level-line{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font:8px 'DM Mono';letter-spacing:.8px;color:#d9ad6b}.level-line span{color:#9294a3}.xp-track{height:5px;background:#3b3d4b;border-radius:5px;overflow:hidden;margin:6px 0 10px}.xp-track i{display:block;height:100%;background:linear-gradient(90deg,#b98542,#f0c878);border-radius:5px;transition:width .2s}
+
+
+/* --- DENTOPIA UI refinement --- */
+.app-shell{max-width:1500px;padding:0 clamp(16px,4vw,56px)}
+.topbar{height:76px;position:relative}
+.brand{gap:13px}.brand-mark{width:42px;height:42px;border-radius:13px;box-shadow:0 5px 18px #e5a84e30}
+.top-status{padding:9px 13px;border:1px solid #ffffff12;border-radius:999px;background:#ffffff05}
+.intro{padding:54px 0 38px;align-items:center}
+.intro h1{font-size:clamp(48px,5.8vw,76px);line-height:.94;letter-spacing:-3.8px}
+.intro p{font-size:14px;line-height:1.6;max-width:420px}
+.match-card{min-width:220px;padding:19px 22px;background:linear-gradient(145deg,#ffffff0b,#ffffff03);box-shadow:0 12px 35px #0002}
+.game-tabs{gap:5px;padding:5px;border:1px solid #ffffff12;border-radius:12px;background:#171a26;margin-bottom:28px;overflow-x:auto;scrollbar-width:none}
+.game-tabs::-webkit-scrollbar{display:none}
+.game-tabs button{white-space:nowrap;border:0;border-radius:8px;padding:13px 17px;transition:background .18s,color .18s}
+.game-tabs button.active{background:#e5ae5d;color:#211a17;box-shadow:0 4px 14px #e5ae5d22}
+.game-tabs button:not(.active):hover{background:#ffffff0a;color:#e9e4db}
+.roster-heading{align-items:center;margin-bottom:24px}
+.roster-heading h2{font-size:clamp(27px,3vw,35px);letter-spacing:-1px}
+.roster-heading p{font-size:12px;line-height:1.6}
+.primary-btn,.secondary-btn{min-height:42px;padding:12px 17px;transition:transform .15s,filter .15s,background .15s}
+.primary-btn:not(:disabled):hover{filter:brightness(1.09);transform:translateY(-1px)}
+.secondary-btn:hover{background:#383c4d}
+.roster-grid{gap:17px}
+.roster-card{padding:17px;border-radius:15px;box-shadow:0 10px 28px #00000012}
+.roster-card:hover{transform:translateY(-3px);box-shadow:0 15px 30px #0003}
+.card-creature{height:108px;margin:9px 0 4px;font-size:72px;display:grid;place-items:center;border-radius:11px;background:radial-gradient(ellipse at 50% 70%,#ffffff0d,transparent 68%)}
+.roster-card h3{font-size:20px;letter-spacing:-.4px}
+.roster-card p{font-size:11px;line-height:1.5;min-height:16px}
+.card-stats{justify-content:space-between}
+.card-footer{gap:8px;flex-wrap:wrap}
+.roster-bottom{padding:18px 20px;background:linear-gradient(110deg,#252637,#1b1e2b)}
+.battle-layout{grid-template-columns:minmax(0,1.7fr) minmax(320px,.82fr);gap:20px;align-items:start}
+.arena-panel,.side-panel{border-radius:16px;box-shadow:0 14px 40px #0002}
+.arena-head{height:54px;padding:0 22px}
+.arena-canvas{height:clamp(360px,39vw,520px);background:radial-gradient(ellipse at 50% 50%,#272c40 0%,#171b29 75%)}
+.arena-canvas canvas{position:absolute;inset:0}
+.arena-side-label{z-index:2;padding:8px 11px;border-radius:6px;background:#111522a8}
+.arena-vs{z-index:2;text-shadow:0 2px 12px #000;opacity:.42}
+.arena-controls{gap:16px;padding:18px 22px}
+.control-copy{min-width:0}
+.side-panel{padding:20px}
+.panel-title{font-size:10px}
+.creature-row{padding:10px 0;border-bottom:1px solid #ffffff09}
+.creature-avatar{width:42px;height:42px;flex:none}
+.creature-name{font-size:11px}
+.creature-info small{font-size:8px;line-height:1.7}
+.battle-log{max-height:145px;padding:5px 0}
+.log-line{line-height:1.5}
+.speed-control{margin-top:10px}
+.memorial-count{white-space:nowrap}
+.empty-memorial{background:#ffffff04}
+footer{margin-top:12px;border-top:1px solid #ffffff10}
+@media(max-width:1000px){
+ .app-shell{padding:0 22px}
+ .battle-layout{grid-template-columns:1fr}
+ .arena-canvas{height:430px}
+ .side-panel{display:grid;grid-template-columns:1fr 1fr;column-gap:24px}
+ .panel-title,.log-title,.battle-log,.speed-control{grid-column:1/-1}
+}
+@media(max-width:650px){
+ .app-shell{padding:0 14px}
+ .topbar{height:65px}
+ .brand{font-size:14px;letter-spacing:1.5px}
+ .brand-mark{width:36px;height:36px}
+ .top-status{font-size:7px;padding:7px 8px;letter-spacing:.6px}
+ .profile-dot{width:30px;height:30px}
+ .intro{padding:34px 0 25px;align-items:flex-end}
+ .intro h1{font-size:clamp(40px,11vw,53px);letter-spacing:-2.5px}
+ .intro p{font-size:10px;max-width:190px;line-height:1.5}
+ .match-card{min-width:108px;padding:11px 12px;border-radius:10px}
+ .match-card strong{font-size:23px}
+ .match-card strong b{display:block;padding:0;font-size:8px}
+ .match-card small{font-size:6px;letter-spacing:.5px}
+ .game-tabs{margin-bottom:22px;gap:3px;padding:4px}
+ .game-tabs button{font-size:7px;letter-spacing:.35px;padding:11px 9px}
+ .roster-heading{gap:13px}
+ .roster-heading h2{font-size:25px}
+ .roster-heading p{font-size:10px;max-width:290px}
+ .recruit-btn{width:100%}
+ .roster-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .roster-card{padding:10px;border-radius:12px}
+ .card-top{font-size:7px;letter-spacing:.4px;gap:4px}
+ .card-creature{height:74px;font-size:52px;margin:7px 0 3px}
+ .roster-card h3{font-size:15px}
+ .roster-card p{font-size:9px;min-height:27px;margin-bottom:9px}
+ .level-line{font-size:7px}
+ .card-stats{gap:5px;padding:8px 0}
+ .card-stats b{font-size:11px}
+ .card-stats span{font-size:7px}
+ .card-footer{padding-top:8px;font-size:6px}
+ .card-footer strong{font-size:10px}
+ .roster-bottom{padding:14px;gap:12px}
+ .roster-bottom strong{font-size:12px}
+ .roster-bottom span{font-size:9px;line-height:1.5}
+ .arena-canvas{height:330px}
+ .arena-head{padding:0 14px}
+ .arena-controls{padding:14px;gap:12px}
+ .side-panel{display:block;padding:15px}
+ .creature-info small{font-size:7px}
+ .memorial-count{padding:9px 10px;font-size:8px}
+ .memorial-details{font-size:7px}
+ footer{font-size:7px;letter-spacing:.7px}
+}
+@media(max-width:380px){
+ .top-status{display:none}
+ .intro{align-items:flex-start}
+ .match-card{min-width:100px}
+ .roster-grid{grid-template-columns:1fr}
+ .card-creature{height:88px}
+ .roster-card p{min-height:0}
+ .arena-canvas{height:290px}
+}

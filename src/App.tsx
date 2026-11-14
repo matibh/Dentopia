@@ -56,8 +56,8 @@ export default function App() {
   };
   const startBattle = () => {
     if (selected.length !== 3) return;
-    const team = roster.filter(c => selected.includes(c.id)).map(c => ({ ...c, hp: c.maxHp, side: "blue" as const, x: -2.4 }));
-    const rival = Array.from({ length: 3 }, () => ({ ...recruitCreature(), side: "red" as const, x: 2.4 }));
+    const team = roster.filter(c => selected.includes(c.id)).map((c, index) => ({ ...c, hp: c.maxHp, side: "blue" as const, x: (index - 1) * 2.45 }));
+    const rival = Array.from({ length: 3 }, (_, index) => ({ ...recruitCreature(), side: "red" as const, x: (index - 1) * 2.45 }));
     const fresh = [...team, ...rival];
     setBattleUnits(fresh); setRound(0); setWinner(null); setRunning(false); setTab("arena");
     setLogs([{ id: logId.current++, text: "¡Comienza el combate! Tu equipo entra a la arena.", tone: "neutral" }]);

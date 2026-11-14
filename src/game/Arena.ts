@@ -13,7 +13,7 @@ export class Arena {
   constructor(private host: HTMLDivElement) {
     this.scene.background = new THREE.Color("#111522");
     this.scene.fog = new THREE.Fog("#111522", 17, 34);
-    this.camera.position.set(0, 9.5, 15.5);
+    this.camera.position.set(0, 10.5, 18);
     this.camera.lookAt(0, 0.75, 0);
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
@@ -201,7 +201,8 @@ export class Arena {
     const shadow = new THREE.Mesh(new THREE.CircleGeometry(0.52, 32), new THREE.MeshBasicMaterial({ color: "#080b12", transparent: true, opacity: 0.28 }));
     shadow.rotation.x = -Math.PI / 2; shadow.position.y = 0.018; group.add(shadow);
 
-    group.position.set(c.x, 0, c.side === "blue" ? 1.35 : -1.35);
+    group.position.set(c.x, 0, c.side === "blue" ? 2.35 : -2.35);
+    group.scale.setScalar(0.9);
     group.userData.baseY = 0;
     group.userData.phase = Math.random() * Math.PI * 2;
     return group;
@@ -231,7 +232,7 @@ export class Arena {
       const group = this.fighters.get(c.id);
       if (group) {
         group.visible = c.hp > 0;
-        group.scale.setScalar(c.hp > 0 ? 1 : 0.01);
+        group.scale.setScalar(c.hp > 0 ? 0.9 : 0.01);
       }
     });
   }
